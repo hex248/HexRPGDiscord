@@ -7,51 +7,45 @@ namespace HexRPGDiscord
 {
     class Shop
     {
-        public string[] moves = new string[5];
-        public int[] movesprice = new int[5];
+        public List<string> moves = new List<string>();
+        public List<int> movesprice = new List<int>();
 
-        public Shop(int ulevel, string[] moveset)
+        public Shop(string[] moveset)
         {
-            switch (ulevel)
+            if (!moveset.Contains("Firebolt"))
             {
-                case 1: // Level 1 Shop
-                    if (!moveset.Contains("Kick"))
-                    {
-                        moves[0] = "Kick";
-                        movesprice[0] = 10;
-                    }
-                    else
-                    {
-                        moves[0] = "Kick (Already using)";
-                    }
-                    if (!moveset.Contains("Push"))
-                    {
-                        moves[1] = "Push";
-                        movesprice[1] = 10;
-                    }
-                    else
-                    {
-                        moves[1] = "Push (Already using)";
-                    }
-                    if (!moveset.Contains("Small Heal"))
-                    {
-                        moves[2] = "Small Heal";
-                        movesprice[2] = 10;
-                    }
-                    else
-                    {
-                        moves[2] = "Small Heal (Already using)";
-                    }
-                    if (!moveset.Contains("Attack Boost"))
-                    {
-                        moves[3] = "Attack Boost";
-                        movesprice[3] = 10;
-                    }
-                    else
-                    {
-                        moves[3] = "Attack Boost (Already using)";
-                    }
-                    break;
+                moves.Add("Firebolt");
+                movesprice.Add(20);
+            }
+            if (!moveset.Contains("Piercing Arrow"))
+            {
+                moves.Add("Piercing Arrrow");
+                movesprice.Add(20);
+            }
+            if (!moveset.Contains("Punch"))
+            {
+                moves.Add("Punch");
+                movesprice.Add(20);
+            }
+            if (!moveset.Contains("Kick"))
+            {
+                moves.Add("Kick");
+                movesprice.Add(50);
+            }
+            if (!moveset.Contains("Push"))
+            {
+                moves.Add("Push");
+                movesprice.Add(90);
+            }
+            if (!moveset.Contains("Small Heal"))
+            {
+                moves.Add("Small Heal (Coming Soon!)");
+                movesprice.Add(999999);
+            }
+            if (!moveset.Contains("Attack Boost (COMING SOON!)"))
+            {
+                moves.Add("Attack Boost (Coming Soon!)");
+                movesprice.Add(999999);
             }
         }
     }

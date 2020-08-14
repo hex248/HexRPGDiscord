@@ -17,6 +17,10 @@ namespace HexRPGDiscord
         public int speed;
         public string[] moveset = new string[5];
         public string[] basemoves = { "Firebolt", "Piercing Arrow", "Punch" };
+        public string[] tier2moves = { "Kick" };
+        public string[] tier3moves = { "Push" };
+        public string[] tier4moves; // = { "Attack Boost" };
+        public string[] tier5moves; // = { "Small Heal" };
         public int balance;
         public int critchance;
         public int evaschance;
@@ -30,7 +34,7 @@ namespace HexRPGDiscord
             {
                 case "Mage":
                     level = 1;
-                    targetXp = 100;
+                    targetXp = 50;
                     currentXp = 0;
                     health = 90;
                     attack = 140;
@@ -47,7 +51,7 @@ namespace HexRPGDiscord
 
                 case "Hunter":
                     level = 1;
-                    targetXp = 100;
+                    targetXp = 50;
                     currentXp = 0;
                     health = 130;
                     attack = 120;
@@ -64,7 +68,7 @@ namespace HexRPGDiscord
 
                 case "Rogue":
                     level = 1;
-                    targetXp = 100;
+                    targetXp = 50;
                     currentXp = 0;
                     health = 60;
                     attack = 145;
@@ -81,7 +85,7 @@ namespace HexRPGDiscord
 
                 case "Admin":
                     level = 1;
-                    targetXp = 999999;
+                    targetXp = 50;
                     health = 1000000;
                     attack = 1000000;
                     speed = 1000000;

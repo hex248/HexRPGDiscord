@@ -13,18 +13,21 @@ namespace HexRPGDiscord
         public int speed;
         public string[,] enemynames =
         {
-            {"Gremlin", "Goblin"},
-            {"Orc", "Griffin" }
+            { "Gremlin", "Goblin"},
+            { "Orc", "Griffin" },
+            { "Phoenix", "Elemental" }
         };
         public string[,] enemyapps =
         {
-            {"Red, small", "Blue, ambidextrous" },
-            {"Red, moderately large", "Blue, wise" }
+            { "Red, small", "Blue, ambidextrous" },
+            { "Red, moderately large", "Blue, wise" },
+            { "Orange, immense", "Green, six-eyed" }
         };
         public string[,] moveset =
         {
-            {"Scratch", "Small Heal"},
-            {"Punch", "Small Heal"}
+            { "Scratch", "Small Heal" },
+            { "Punch", "Small Heal" },
+            { "Firebolt", "Hidden Attack" }
         };
         public Enemy(int plevel)
         {
@@ -62,9 +65,17 @@ namespace HexRPGDiscord
                     attack = 60;
                     speed = 100;
                     return;
+                case "Phoenix":
+                    health = 110;
+                    attack = 100;
+                    speed = 80;
+                    break;
+                case "Elemental":
+                    health = 100;
+                    attack = 130;
+                    speed = 110;
+                    break;
             }
-
-
         }
     }
 }
