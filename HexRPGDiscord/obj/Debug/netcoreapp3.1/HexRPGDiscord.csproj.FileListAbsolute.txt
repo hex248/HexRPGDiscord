@@ -14,7 +14,7 @@ D:\Programming\CS\HexRPGDiscord\HexRPGDiscord\bin\Debug\netcoreapp3.1\HexRPGDisc
 D:\Programming\CS\HexRPGDiscord\HexRPGDiscord\bin\Debug\netcoreapp3.1\HexRPGDiscord.dll
 D:\Programming\CS\HexRPGDiscord\HexRPGDiscord\bin\Debug\netcoreapp3.1\HexRPGDiscord.pdb
 D:\Programming\CS\HexRPGDiscord\HexRPGDiscord\bin\Debug\netcoreapp3.1\DSharpPlus.Interactivity.dll
-D:\Programming\CS\HexRPGDiscord\HexRPGDiscord\obj\Debug\netcoreapp3.1\HexRPGDiscord.csproj.CoreCompileInputs.cache
 D:\Programming\CS\HexRPGDiscord\HexRPGDiscord\obj\Debug\netcoreapp3.1\HexRPGDiscord.dll
 D:\Programming\CS\HexRPGDiscord\HexRPGDiscord\obj\Debug\netcoreapp3.1\HexRPGDiscord.pdb
 D:\Programming\CS\HexRPGDiscord\HexRPGDiscord\obj\Debug\netcoreapp3.1\HexRPGDiscord.genruntimeconfig.cache
+D:\Programming\CS\HexRPGDiscord\HexRPGDiscord\obj\Debug\netcoreapp3.1\HexRPGDiscord.csproj.CoreCompileInputs.cache

@@ -19,7 +19,7 @@ namespace HexRPGDiscord
             }
             if (!moveset.Contains("Piercing Arrow"))
             {
-                moves.Add("Piercing Arrrow");
+                moves.Add("Piercing Arrow");
                 movesprice.Add(30);
             }
             if (!moveset.Contains("Punch"))

@@ -282,7 +282,7 @@
           "System.Runtime": "4.3.0"
         },
         "compile": {
-          "ref/netstandard1.3/_._": {}
+          "ref/netstandard1.3/System.Collections.dll": {}
         }
       },
       "System.Collections.Concurrent/4.3.0": {
@@ -4029,7 +4029,8 @@
       "DSharpPlus >= 4.0.0-nightly-00711",
       "DSharpPlus.CommandsNext >= 4.0.0-nightly-00711",
       "DSharpPlus.Interactivity >= 4.0.0-nightly-00711",
-      "Newtonsoft.Json >= 12.0.3"
+      "Newtonsoft.Json >= 12.0.3",
+      "System.Collections >= 4.3.0"
     ]
   },
   "packageFolders": {
@@ -4085,6 +4086,10 @@
           "Newtonsoft.Json": {
             "target": "Package",
             "version": "[12.0.3, )"
+          },
+          "System.Collections": {
+            "target": "Package",
+            "version": "[4.3.0, )"
           }
         },
         "imports": [

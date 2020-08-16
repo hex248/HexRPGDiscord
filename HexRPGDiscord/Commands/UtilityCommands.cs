@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -28,7 +29,7 @@ namespace HexRPGDiscord.Commands
                     Title = "You have already created a character! Use !play to start playing."
                 };
 
-              await ctx.Channel.SendMessageAsync(embed: DataFoundEmbed).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(embed: DataFoundEmbed).ConfigureAwait(false);
             }
             else
             {
@@ -91,7 +92,7 @@ namespace HexRPGDiscord.Commands
 
                 ustyle = null;
 
-                save();
+                await Task.Run(() => save(ctx));
 
                 var userinfoEmbed = new DiscordEmbedBuilder
                 {
@@ -123,7 +124,7 @@ namespace HexRPGDiscord.Commands
         {
             if (File.Exists($@"playersaves/{ctx.User.Id}.json"))
             {
-                LoadUser(ctx.User.Id.ToString());
+                await Task.Run(() => LoadUser(ctx.User.Id.ToString()));
 
                 var gameEmbed = new DiscordEmbedBuilder
                 {
@@ -153,7 +154,7 @@ namespace HexRPGDiscord.Commands
         {
             if (File.Exists($@"playersaves/{ctx.User.Id}.json"))
             {
-                LoadUser(ctx.User.Id.ToString());
+                await Task.Run(() => LoadUser(ctx.User.Id.ToString()));
 
                 var userinfoEmbed = new DiscordEmbedBuilder
                 {
@@ -187,6 +188,43 @@ namespace HexRPGDiscord.Commands
 
                 await ctx.Channel.SendMessageAsync(embed: noDataEmbed).ConfigureAwait(false);
             }
+        }
+
+        [Command("leaderboard")]
+        [Description("Displays the leaderboard for the current server.")]
+        public async Task Leaderboard(CommandContext ctx)
+        {
+            List<string> nameleaderboardPlacements = new List<string>();
+            List<string> levelleaderboardPlacements = new List<string>();
+
+            string leaderboardDescription = "";
+
+
+            await Task.Run(() => LoadUser(ctx.User.Id.ToString()));
+            await Task.Run(() => save(ctx));
+
+
+            string leaderboard = File.ReadAllText($@"leaderboards/{ctx.Guild.Id}.json");
+            Dictionary<string, int> leaderboardDict = JsonConvert.DeserializeObject<Dictionary<string, int>>(leaderboard);
+
+            foreach (KeyValuePair<string, int> player in leaderboardDict.OrderBy(key => key.Value))
+            {
+                nameleaderboardPlacements.Insert(0, $"{player.Key}");
+                levelleaderboardPlacements.Insert(0, $"{player.Value}");
+            }
+
+            for (int i = 0; i < nameleaderboardPlacements.Count; i++)
+            {
+                leaderboardDescription += $"**{nameleaderboardPlacements[i]}**: {levelleaderboardPlacements[i]}\n";
+            }
+
+            var leaderboardEmbed = new DiscordEmbedBuilder
+            {
+                Title = $"**{ctx.Guild.Name}**'s Leaderboard:",
+                Description = leaderboardDescription
+            };
+
+            await ctx.Channel.SendMessageAsync(embed: leaderboardEmbed).ConfigureAwait(false);
         }
 
         [Command("clear")]
@@ -245,7 +283,7 @@ namespace HexRPGDiscord.Commands
         {
             if (File.Exists($@"playersaves/{ctx.User.Id}.json"))
             {
-                LoadUser(ctx.User.Id.ToString());
+                await Task.Run(() => LoadUser(ctx.User.Id.ToString()));
 
                 var skillEmbed = new DiscordEmbedBuilder
                 {
@@ -285,29 +323,22 @@ namespace HexRPGDiscord.Commands
                     await ctx.Channel.SendMessageAsync(embed: allocateEmbed).ConfigureAwait(false);
 
                     var interactivitytwo = ctx.Client.GetInteractivity();
-                    Console.WriteLine("Got interactivitytwo");
                     var allocationResponse = await interactivitytwo.WaitForMessageAsync(x => x.Channel == ctx.Channel && x.Author == ctx.User).ConfigureAwait(false);
-                    Console.WriteLine("defining allocationResponse");
                     int allocationNumber = System.Convert.ToInt32(allocationResponse.Result.Content);
-                    Console.WriteLine("defining allocationNumber");
-                    Console.WriteLine($"allocated number is {allocationNumber}");
 
                     if (allocationNumber <= user.skillpoints && allocationNumber > 0)
                     {
-                        Console.WriteLine("after checking the allocation number");
                         int allocatedValue = allocationNumber * 10;
                         user.skillpoints -= allocationNumber;
                         string allocation = "None";
                         switch (skillResponse.Result.Content.ToLower())
                         {
                             case "attack":
-                                Console.WriteLine("switch - attack");
                                 user.extraattack += allocatedValue;
                                 allocation = "Attack";
                                 break;
 
                             case "health":
-                                Console.WriteLine("switch - health");
                                 user.extrahealth += allocatedValue;
                                 allocation = "Health";
                                 break;
@@ -320,7 +351,7 @@ namespace HexRPGDiscord.Commands
 
                         await ctx.Channel.SendMessageAsync(embed: allocatedEmbed).ConfigureAwait(false);
 
-                        save();
+                        await Task.Run(() => save(ctx));
                     }
                     else
                     {
@@ -356,7 +387,7 @@ namespace HexRPGDiscord.Commands
 
             if (File.Exists($@"playersaves/{ctx.User.Id}.json"))
             {
-                LoadUser(ctx.User.Id.ToString());
+                await Task.Run(() => LoadUser(ctx.User.Id.ToString()));
 
                 if (user.lastDailyDate != DateTime.UtcNow.ToString("dd-MM-yyyy"))
                 {
@@ -372,7 +403,7 @@ namespace HexRPGDiscord.Commands
 
                     user.lastDailyDate = DateTime.UtcNow.ToString("dd-MM-yyyy");
 
-                    save();
+                    await Task.Run(() => save(ctx));
                 }
                 else
                 {
@@ -400,23 +431,17 @@ namespace HexRPGDiscord.Commands
 
         }
 
-        // [Command("stopgame")]
-        // [Description("Stops games")]
-        // [RequireRoles(RoleCheckMode.Any, "Tester")]
-        // public async Task StopGame(CommandContext ctx)
-        // {
-        //     inFight = false;
-        // }
-
         [Command("shop")]
         [Description("Shows the user the shop")]
         public async Task Shop(CommandContext ctx)
         {
             if (File.Exists($@"playersaves/{ctx.User.Id}.json"))
             {
-                LoadUser(ctx.User.Id.ToString());
+                await Task.Run(() => LoadUser(ctx.User.Id.ToString()));
+                
 
                 Shop playershop = new Shop(user.moveset);
+
 
                 var shopEmbed = new DiscordEmbedBuilder
                 {
@@ -460,7 +485,6 @@ namespace HexRPGDiscord.Commands
                     if (buyChoice > 0 && buyChoice <= playershop.moves.Count)
                     {
                         input_is_valid = true;
-                        Console.WriteLine($"{ctx.User.Username}'s input is valid.");
                     }
                 }
 
@@ -506,7 +530,7 @@ namespace HexRPGDiscord.Commands
 
                             await ctx.Channel.SendMessageAsync(embed: boughtEmbed).ConfigureAwait(false);
 
-                            save();
+                            await Task.Run(() => save(ctx));
                         }
                     }
                     else
@@ -531,15 +555,44 @@ namespace HexRPGDiscord.Commands
             } // if (File.Exists($@"playersaves/{ctx.User.Id}.json"))
         } // public async Task Shop(CommandContext ctx)
 
-        private void save()
+        public async Task save(CommandContext ctx)
         {
             user.health = user.ohealth + user.extrahealth;
             user.attack = user.oattack + user.extraattack;
             string tempuserinfo = JsonConvert.SerializeObject(user);
             File.WriteAllText($@"playersaves/{user.Id}.json", tempuserinfo);
+
+            if (!File.Exists($@"leaderboards/{ctx.Guild.Id}.json"))
+            {
+                Dictionary<string, int> leaderboardDict = new Dictionary<string, int>();
+
+                string leaderboardjson = JsonConvert.SerializeObject(leaderboardDict, Formatting.Indented);
+
+                File.WriteAllText($@"leaderboards/{ctx.Guild.Id}.json", leaderboardjson);
+            }
+            if (File.Exists($@"leaderboards/{ctx.Guild.Id}.json"))
+            {
+                string strleaderboard = File.ReadAllText($@"leaderboards/{ctx.Guild.Id}.json");
+                Dictionary<string, int> leaderboardDict = JsonConvert.DeserializeObject<Dictionary<string, int>>(strleaderboard);
+
+
+                if (leaderboardDict.ContainsKey($"{user.name}"))
+                {
+                    leaderboardDict.Remove(user.name);
+                    leaderboardDict.Add(user.name, user.level);
+                } // if (leaderboardDict.ContainsKey($"{user.name}"))
+                else
+                {
+                    leaderboardDict.Add(user.name, user.level);
+                } // if (leaderboardDict.ContainsKey($"{user.name}")) else
+
+                string leaderboardjson = JsonConvert.SerializeObject(leaderboardDict, Formatting.Indented);
+
+                File.WriteAllText($@"leaderboards/{ctx.Guild.Id}.json", leaderboardjson);
+            }
         }
 
-        private void LoadUser(string userid)
+        public async Task LoadUser(string userid)
         {
             jsonplayer = File.ReadAllText($@"playersaves/{userid}.json");
             user = JsonConvert.DeserializeObject<Player>(jsonplayer);
@@ -726,7 +779,7 @@ namespace HexRPGDiscord.Commands
                 } // if (enemy.health <= 0 || phealth <= 0)
             } // while (inFight)
 
-            save();
+            await Task.Run(() => save(ctx));
         } // public async Task startgame(CommandContext ctx)
 
         public async Task addXp(int amount, int moneyGained, CommandContext ctx)
@@ -757,7 +810,7 @@ namespace HexRPGDiscord.Commands
 
                 await ctx.Channel.SendMessageAsync(embed: levelupEmbed).ConfigureAwait(false);
             } // if (user.currentXp >= user.targetXp)
-            save();
+            await Task.Run(() => save(ctx));
         } // public async Task addXp(int amount, CommandContext ctx)
     } // public class UtilityCommands : BaseCommandModule
 } // namespace HexRPGDiscord.Commands

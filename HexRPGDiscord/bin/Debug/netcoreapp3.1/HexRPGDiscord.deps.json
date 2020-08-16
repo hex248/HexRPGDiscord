@@ -11,7 +11,8 @@
           "DSharpPlus": "4.0.0-nightly-00711",
           "DSharpPlus.CommandsNext": "4.0.0-nightly-00711",
           "DSharpPlus.Interactivity": "4.0.0-nightly-00711",
-          "Newtonsoft.Json": "12.0.3"
+          "Newtonsoft.Json": "12.0.3",
+          "System.Collections": "4.3.0"
         },
         "runtime": {
           "HexRPGDiscord.dll": {}
