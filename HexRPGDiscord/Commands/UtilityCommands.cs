@@ -566,6 +566,7 @@ namespace HexRPGDiscord.Commands
             int phealth = user.health;
             int eohealth = enemy.health;
             int damage = 0;
+            int enemydamage;
             int moveint = 0;
             string move;
             inFight = true;
@@ -613,27 +614,23 @@ namespace HexRPGDiscord.Commands
                         move = user.moveset[moveint - 1];
                         if (user.basemoves.Contains(move))
                         {
-                            damage = System.Convert.ToInt32(user.attack * 0.15);
+                            damage = System.Convert.ToInt32((user.attack * rnd.Next(15, 20)) / 100);
                         }
                         else if (user.tier2moves.Contains(move))
                         {
-                            damage = System.Convert.ToInt32(user.attack * 0.20);
+                            damage = System.Convert.ToInt32((user.attack * rnd.Next(30, 35)) / 100);
                         }
                         else if (user.tier3moves.Contains(move))
                         {
-                            damage = System.Convert.ToInt32(user.attack * 0.25);
+                            damage = System.Convert.ToInt32((user.attack * rnd.Next(35, 40)) / 100);
                         }
                         else if (user.tier4moves.Contains(move))
                         {
-                            damage = System.Convert.ToInt32(user.attack * 0.4);
+                            damage = System.Convert.ToInt32((user.attack * rnd.Next(40, 45)) / 100);
                         }
                         else if (user.tier5moves.Contains(move))
                         {
-                            damage = System.Convert.ToInt32(user.attack * 0.5);
-                        }
-                        else
-                        {
-                            move = "None";
+                            damage = System.Convert.ToInt32((user.attack * rnd.Next(45, 55)) / 100);
                         }
                     }
                 }
@@ -649,6 +646,7 @@ namespace HexRPGDiscord.Commands
                     damage = System.Convert.ToInt32(damage * 1.5);
                 } // if (critprob <= user.critchance)
                 enemy.health -= damage;
+
                 
 
                 // Critical Hit
@@ -664,53 +662,35 @@ namespace HexRPGDiscord.Commands
 
                     string enemymove;
 
-                    if (user.level > 3)
+                    if (user.level > 37)
                     {
-                        enemymove = enemy.moveset[rnd.Next(0, 3), rnd.Next(0, 2)];
-                    }
+                        enemymove = enemy.moveset[38, rnd.Next(0, 2)];
+                    } // if (user.level > 37)
                     else
                     {
                         enemymove = enemy.moveset[rnd.Next(0, user.level - 1), rnd.Next(0, 2)];
-                    }
+                    } // if (user.level > 37) else
 
-                    switch (enemymove)
+                    if (enemymove == "Small Heal")
                     {
-                        case "Scratch":
-                            phealth -= enemy.attack / 5;
-                            damageEmbed.Title = $"The {enemy.name} used {enemymove}, " +
-                                $"dealing {enemy.attack / 5} damage!\n" +
-                                $"You now have {phealth} health.";
-                            break;
+                        int healthchange = eohealth / 5;
+                        enemy.health += healthchange;
+                        damageEmbed.Title = $"The {enemy.name} used {enemymove}, " +
+                            $"healing by {healthchange}.\n" +
+                            $"They now have {enemy.health} health.";
+                    } // if (enemymove == "Small Heal")
+                    else
+                    {
+                        enemydamage = System.Convert.ToInt32((enemy.attack * rnd.Next(21, 31)) / 100);
 
-                        case "Small Heal":
-                            int healthchange = eohealth / 5;
-                            enemy.health += healthchange;
-                            damageEmbed.Title = $"The {enemy.name} used {enemymove}, " +
-                                $"healing by {healthchange}.\n" +
-                                $"They now have {enemy.health} health.";
-                            break;
+                        phealth -= enemydamage;
+                        damageEmbed.Title = $"The {enemy.name} used {enemymove}, " +
+                            $"dealing {enemydamage} damage!\n" +
+                            $"You now have {phealth} health.";
+                    } // if (enemymove == "Small Heal") else
 
-                        case "Punch":
-                            phealth -= enemy.attack / 4;
-                            damageEmbed.Title = $"The {enemy.name} used {enemymove}, " +
-                                $"dealing {enemy.attack / 4} damage!\n" +
-                                $"You now have {phealth} health.";
-                            break;
 
-                        case "Firebolt":
-                            phealth -= enemy.attack / 3;
-                            damageEmbed.Title = $"The {enemy.name} used {enemymove}, " +
-                                $"dealing {enemy.attack / 3} damage!\n" +
-                                $"You now have {phealth} health.";
-                            break;
 
-                        case "Hidden Attack":
-                            phealth -= System.Convert.ToInt32(enemy.attack / 3.5);
-                            damageEmbed.Title = $"The {enemy.name} used {enemymove}, " +
-                                $"dealing {System.Convert.ToInt32(enemy.attack / 3.5)} damage!\n" +
-                                $"You now have {phealth} health.";
-                            break;
-                    }
                     System.Threading.Thread.Sleep(1000);
                     await ctx.Channel.SendMessageAsync(embed: damageEmbed).ConfigureAwait(false);
                 } // if (enemy.health > 0)
@@ -733,13 +713,13 @@ namespace HexRPGDiscord.Commands
                     System.Threading.Thread.Sleep(500);
 
                     await addXp(xpGained, moneyGained, ctx);
-                }
+                } // if (enemy.health > 0) else
                 if (phealth <= 0)
                 {
                     damageEmbed.Title = "You died!";
                     System.Threading.Thread.Sleep(1000);
                     await ctx.Channel.SendMessageAsync(embed: damageEmbed).ConfigureAwait(false);
-                }
+                } // if (phealth <= 0)
                 if (enemy.health <= 0 || phealth <= 0)
                 {
                     inFight = false;
