@@ -104,7 +104,7 @@ namespace HexRPGDiscord.Commands
                     $"Health: {user.health}\n" +
                     $"Attack: {user.attack}\n" +
                     $"Speed: {user.speed}\n" +
-                    $"Moveset: {user.moveset[0]}, {user.moveset[1]}, {user.moveset[2]}, {user.moveset[3]}, {user.moveset[4]}\n" +
+                    $"Moveset: {user.moveset[0]}, {user.moveset[1]}, {user.moveset[2]}, {user.moveset[3]}\n" +
                     $"Balance: ${user.balance}\n" +
                     $"Critical Hit Chance: {user.critchance}%\n" +
                     $"Attack Evasion Chance: {user.evaschance}%",
@@ -166,7 +166,7 @@ namespace HexRPGDiscord.Commands
                     $"Health: {user.health}\n" +
                     $"Attack: {user.attack}\n" +
                     $"Speed: {user.speed}\n" +
-                    $"Moveset: {user.moveset[0]}, {user.moveset[1]}, {user.moveset[2]}, {user.moveset[3]}, {user.moveset[4]}\n" +
+                    $"Moveset: {user.moveset[0]}, {user.moveset[1]}, {user.moveset[2]}, {user.moveset[3]}\n" +
                     $"Balance: ${user.balance}\n" +
                     $"Critical Hit Chance: {user.critchance}%\n" +
                     $"Attack Evasion Chance: {user.evaschance}%",
@@ -176,6 +176,7 @@ namespace HexRPGDiscord.Commands
                 userinfoEmbed.WithThumbnail(ctx.User.GetAvatarUrl((DSharpPlus.ImageFormat)5, 1024));
 
                 await ctx.Channel.SendMessageAsync(embed: userinfoEmbed).ConfigureAwait(false);
+
             } // if (File.Exists($@"playersaves/{ctx.User.Id}.json"))
             else
             {
@@ -236,6 +237,167 @@ namespace HexRPGDiscord.Commands
 
                 await ctx.Channel.SendMessageAsync(embed: invalidClearEmbed).ConfigureAwait(false);
             } // if (File.Exists($@"playersaves/{ctx.User.Id}.json"))
+        }
+
+        [Command("skills")]
+        [Description("Shows the skill point allocation menu.")]
+        public async Task Skills(CommandContext ctx)
+        {
+            if (File.Exists($@"playersaves/{ctx.User.Id}.json"))
+            {
+                LoadUser(ctx.User.Id.ToString());
+
+                var skillEmbed = new DiscordEmbedBuilder
+                {
+                    Title = 
+                    $"**Skills:**\n\n",
+                    Description = 
+                    $"Your Skill Points: {user.skillpoints}"
+                };
+
+                skillEmbed.AddField("Attack:", $"{user.attack}", false);
+                skillEmbed.AddField("Health:", $"{user.health}", false);
+                skillEmbed.WithFooter("Type either attack or health to start allocating skill points");
+
+                await ctx.Channel.SendMessageAsync(embed: skillEmbed).ConfigureAwait(false);
+
+                var interactivity = ctx.Client.GetInteractivity();
+
+                var skillResponse = await interactivity.WaitForMessageAsync(x => x.Channel == ctx.Channel && x.Author == ctx.User).ConfigureAwait(false);
+
+                var allocateEmbed = new DiscordEmbedBuilder
+                {
+                    Title = "attack/health",
+                    Description = $"Your Skill Points: {user.skillpoints}"
+                };
+
+                if (skillResponse.Result.Content.ToLower() == "attack" || skillResponse.Result.Content.ToLower() == "health")
+                {
+                    if (skillResponse.Result.Content.ToLower() == "attack")
+                    {
+                        allocateEmbed.Title = "Type the number of points that you would like to allocate to your attack power.";
+                    }
+                    else if (skillResponse.Result.Content.ToLower() == "health")
+                    {
+                        allocateEmbed.Title = "Type the number of points that you would like to allocate to your health.";
+                    }
+
+                    await ctx.Channel.SendMessageAsync(embed: allocateEmbed).ConfigureAwait(false);
+
+                    var interactivitytwo = ctx.Client.GetInteractivity();
+                    Console.WriteLine("Got interactivitytwo");
+                    var allocationResponse = await interactivitytwo.WaitForMessageAsync(x => x.Channel == ctx.Channel && x.Author == ctx.User).ConfigureAwait(false);
+                    Console.WriteLine("defining allocationResponse");
+                    int allocationNumber = System.Convert.ToInt32(allocationResponse.Result.Content);
+                    Console.WriteLine("defining allocationNumber");
+                    Console.WriteLine($"allocated number is {allocationNumber}");
+
+                    if (allocationNumber <= user.skillpoints && allocationNumber > 0)
+                    {
+                        Console.WriteLine("after checking the allocation number");
+                        int allocatedValue = allocationNumber * 10;
+                        user.skillpoints -= allocationNumber;
+                        string allocation = "None";
+                        switch (skillResponse.Result.Content.ToLower())
+                        {
+                            case "attack":
+                                Console.WriteLine("switch - attack");
+                                user.extraattack += allocatedValue;
+                                allocation = "Attack";
+                                break;
+
+                            case "health":
+                                Console.WriteLine("switch - health");
+                                user.extrahealth += allocatedValue;
+                                allocation = "Health";
+                                break;
+                        }
+
+                        var allocatedEmbed = new DiscordEmbedBuilder
+                        {
+                            Title = $"You allocated {allocationNumber} skill points to {allocation}.\nThis increased your {allocation} value by {allocationNumber * 10}."
+                        };
+
+                        await ctx.Channel.SendMessageAsync(embed: allocatedEmbed).ConfigureAwait(false);
+
+                        save();
+                    }
+                    else
+                    {
+                        var notallocatedEmbed = new DiscordEmbedBuilder
+                        {
+                            Title = $"You do not have {allocationNumber} skill points to allocate!"
+                        };
+
+                        await ctx.Channel.SendMessageAsync(embed: notallocatedEmbed).ConfigureAwait(false);
+                    }
+
+                    
+                }
+            }
+            else
+            {
+                var noDataEmbed = new DiscordEmbedBuilder
+                {
+                    Title = "You have not created a character yet! Use !start to get started on your adventure."
+                };
+
+                await ctx.Channel.SendMessageAsync(embed: noDataEmbed).ConfigureAwait(false);
+            }
+        }
+
+        [Command("daily")]
+        [Description("Allows the player to claim their daily money reward.")]
+        public async Task Daily(CommandContext ctx)
+        {
+            Random rnd = new Random();
+
+            int reward = rnd.Next(26, 46);
+
+            if (File.Exists($@"playersaves/{ctx.User.Id}.json"))
+            {
+                LoadUser(ctx.User.Id.ToString());
+
+                if (user.lastDailyDate != DateTime.UtcNow.ToString("dd-MM-yyyy"))
+                {
+                    user.balance += reward;
+
+                    var dailyEmbed = new DiscordEmbedBuilder
+                    {
+                        Title = $"You Claimed your daily reward of ${reward}! you now have ${user.balance}.",
+                        Color = DiscordColor.Green
+                    };
+
+                    await ctx.Channel.SendMessageAsync(embed: dailyEmbed).ConfigureAwait(false);
+
+                    user.lastDailyDate = DateTime.UtcNow.ToString("dd-MM-yyyy");
+
+                    save();
+                }
+                else
+                {
+                    var dailyEmbed = new DiscordEmbedBuilder
+                    {
+                        Title = $"You have already claimed your reward today! Come back again tomorrow for a reward.",
+                        Color = DiscordColor.IndianRed
+                    };
+
+                    await ctx.Channel.SendMessageAsync(embed: dailyEmbed).ConfigureAwait(false);
+                }
+
+                
+            }
+            else
+            {
+                var noDataEmbed = new DiscordEmbedBuilder
+                {
+                    Title = "You have not created a character yet! Use !start to get started on your adventure."
+                };
+
+                await ctx.Channel.SendMessageAsync(embed: noDataEmbed).ConfigureAwait(false);
+            }
+            
+
         }
 
         // [Command("stopgame")]
@@ -314,8 +476,7 @@ namespace HexRPGDiscord.Commands
                             Description = $"1. {user.moveset[0]}\n" +
                                           $"2. {user.moveset[1]}\n" +
                                           $"3. {user.moveset[2]}\n" +
-                                          $"4. {user.moveset[3]}\n" +
-                                          $"5. {user.moveset[4]}\n"
+                                          $"4. {user.moveset[3]}\n"
                         };
 
                         replaceEmbed.WithFooter("Type the number corresponding to the move you would like to replace.");
@@ -337,7 +498,7 @@ namespace HexRPGDiscord.Commands
                         {
                             var boughtEmbed = new DiscordEmbedBuilder
                             {
-                                Title = $"You replaced {user.moveset[replaceChoice - 1]} with {playershop.moves[buyChoice - 1]} spending ${playershop.movesprice[buyChoice - 1]}!"
+                                Title = $"You replaced {user.moveset[replaceChoice - 1]} with {playershop.moves[buyChoice - 1]}, spending ${playershop.movesprice[buyChoice - 1]}!"
                             };
 
                             user.moveset[replaceChoice - 1] = playershop.moves[buyChoice - 1];
@@ -372,6 +533,8 @@ namespace HexRPGDiscord.Commands
 
         private void save()
         {
+            user.health = user.ohealth + user.extrahealth;
+            user.attack = user.oattack + user.extraattack;
             string tempuserinfo = JsonConvert.SerializeObject(user);
             File.WriteAllText($@"playersaves/{user.Id}.json", tempuserinfo);
         }
@@ -380,7 +543,6 @@ namespace HexRPGDiscord.Commands
         {
             jsonplayer = File.ReadAllText($@"playersaves/{userid}.json");
             user = JsonConvert.DeserializeObject<Player>(jsonplayer);
-            Console.WriteLine($"Found player data for {user.name}");
         }
 
         public async Task startgame(CommandContext ctx)
@@ -429,7 +591,6 @@ namespace HexRPGDiscord.Commands
                 $"2. {user.moveset[1]}\n" +
                 $"3. {user.moveset[2]}\n" +
                 $"4. {user.moveset[3]}\n" +
-                $"5. {user.moveset[4]}\n" +
                 $"\nEnter the number of a move to use it.",
                 Color = DiscordColor.Aquamarine
             };
@@ -447,14 +608,13 @@ namespace HexRPGDiscord.Commands
                     var moveinput = await interactivity.WaitForMessageAsync(x => x.Channel == ctx.Channel && x.Author == ctx.User).ConfigureAwait(false);
 
                     moveint = System.Convert.ToInt32(moveinput.Result.Content);
-                    move = user.moveset[moveint - 1];
-
-                    if (user.moveset.Contains(move))
+                    if (moveint <= 4)
                     {
+                        move = user.moveset[moveint - 1];
                         if (user.basemoves.Contains(move))
                         {
                             damage = System.Convert.ToInt32(user.attack * 0.15);
-                        } // if (user.basemoves.Contains(move))
+                        }
                         else if (user.tier2moves.Contains(move))
                         {
                             damage = System.Convert.ToInt32(user.attack * 0.20);
@@ -463,14 +623,18 @@ namespace HexRPGDiscord.Commands
                         {
                             damage = System.Convert.ToInt32(user.attack * 0.25);
                         }
+                        else if (user.tier4moves.Contains(move))
+                        {
+                            damage = System.Convert.ToInt32(user.attack * 0.4);
+                        }
+                        else if (user.tier5moves.Contains(move))
+                        {
+                            damage = System.Convert.ToInt32(user.attack * 0.5);
+                        }
                         else
                         {
                             move = "None";
                         }
-                    }
-                    else
-                    {
-                        move = "None";
                     }
                 }
 
@@ -604,9 +768,12 @@ namespace HexRPGDiscord.Commands
                 var levelupEmbed = new DiscordEmbedBuilder
                 {
                     Title = $"LEVEL UP!\n" +
-                    $"You reached {user.level}!",
+                    $"You reached {user.level}!\n\n" +
+                    $"You gained 1 skill point! Use !skills to use it!",
                     Color = DiscordColor.Purple
                 };
+
+                user.skillpoints++;
 
                 await ctx.Channel.SendMessageAsync(embed: levelupEmbed).ConfigureAwait(false);
             } // if (user.currentXp >= user.targetXp)

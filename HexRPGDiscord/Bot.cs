@@ -31,7 +31,7 @@ namespace HexRPGDiscord
                 Token = configJson.Token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
-                LogLevel = LogLevel.Debug,
+                LogLevel = LogLevel.Warning,
                 UseInternalLogHandler = true
             };
 
