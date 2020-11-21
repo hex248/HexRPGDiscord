@@ -256,6 +256,33 @@ namespace HexRPGDiscord.Commands
                 {
                     dataclearedEmbed.Title = "Player data was cleared.";
                     File.Delete($@"playersaves/{ctx.User.Id}.json");
+
+                    // If there isn't already a leaderboard, create one
+                    if (!File.Exists($@"leaderboards/{ctx.Guild.Id}.json"))
+                    {
+                        Dictionary<string, int> leaderboardDict = new Dictionary<string, int>();
+
+                        string leaderboardjson = JsonConvert.SerializeObject(leaderboardDict, Formatting.Indented);
+
+                        File.WriteAllText($@"leaderboards/{ctx.Guild.Id}.json", leaderboardjson);
+                    } // if (!File.Exists($@"leaderboards/{ctx.Guild.Id}.json"))
+
+                    // For each leaderboard, remove the player (if they are in it)
+                    foreach (string path in Directory.GetFiles($@"leaderboards/"))
+                    {
+                        string leaderboard = File.ReadAllText(path);
+                        Dictionary<string, int> leaderboardDict = JsonConvert.DeserializeObject<Dictionary<string, int>>(leaderboard);
+
+                        if (leaderboardDict.ContainsKey($"{user.name}"))
+                        {
+                            leaderboardDict.Remove(user.name);
+
+                            string leaderboardjson = JsonConvert.SerializeObject(leaderboardDict, Formatting.Indented);
+
+                            File.WriteAllText(path, leaderboardjson);
+
+                        } // if (leaderboardDict.ContainsKey($"{user.name}"))
+                    } // foreach (string path in Directory.GetFiles($@"leaderboards/"))
                 }
                 else
                 {
@@ -470,17 +497,21 @@ namespace HexRPGDiscord.Commands
 
                 int buyChoice = 0;
 
-                var interactivity = ctx.Client.GetInteractivity();
+                //var interactivity = ctx.Client.GetInteractivity();
 
-                var buyResponse = await interactivity.WaitForMessageAsync(x => x.Channel == ctx.Channel && x.Author == ctx.User).ConfigureAwait(false);
+                //var buyResponse = await interactivity.WaitForMessageAsync(x => x.Channel == ctx.Channel && x.Author == ctx.User).ConfigureAwait(false);
 
                 while (!input_is_valid)
                 {
-                    interactivity = ctx.Client.GetInteractivity();
+                    //Console.WriteLine("Start of while (!input_is_valid)");
+                    var interactivity = ctx.Client.GetInteractivity();
+                    //Console.WriteLine("Got interactivity");
 
-                    buyResponse = await interactivity.WaitForMessageAsync(x => x.Channel == ctx.Channel && x.Author == ctx.User).ConfigureAwait(false);
+                    var buyResponse = await interactivity.WaitForMessageAsync(x => x.Channel == ctx.Channel && x.Author == ctx.User).ConfigureAwait(false);
+                    //Console.WriteLine("Got string input");
 
                     buyChoice = System.Convert.ToInt32(buyResponse.Result.Content);
+                    //Console.WriteLine("Converted string input to integer");
 
                     if (buyChoice > 0 && buyChoice <= playershop.moves.Count)
                     {
